@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.InitCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -16,6 +17,11 @@ import org.kohsuke.github.GHCreateRepositoryBuilder;
 import org.kohsuke.github.GitHub;
 
 public class JGitAPI {
+    /**
+     * @param args
+     * @throws IOException Se lanza la excepción si se ha producido un error en la entrada/salida.
+     * @throws GitAPIException Excepción que se lanza cuando hay algún problema con la API de Github.
+     */
 
     public static void main(String[] args) throws IOException, GitAPIException {
         int opcion;
@@ -100,6 +106,19 @@ public class JGitAPI {
                     commit.setMessage(mensaje).call(); 
                     
                     break;
+                    
+                /**
+                 * Inicializa el repositorio en la ruta que el pasamos.
+                 */    
+                
+                case 4:
+                    String rutaInicializar = JOptionPane.showInputDialog("Ruta del proyecto");
+                    InitCommand repositorio2 = new InitCommand();
+                    repositorio2.setDirectory(new File(rutaInicializar)).call();
+                    
+                    break;
+                    
+                    
             }
             
         }while(opcion!=0);

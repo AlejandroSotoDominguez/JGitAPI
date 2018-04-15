@@ -3,6 +3,7 @@ package com.mycompany.jgitapi;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -10,9 +11,13 @@ import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.InitCommand;
+import org.eclipse.jgit.api.PushCommand;
+import org.eclipse.jgit.api.RemoteAddCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.transport.URIish;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.kohsuke.github.GHCreateRepositoryBuilder;
 import org.kohsuke.github.GitHub;
 
@@ -23,7 +28,7 @@ public class JGitAPI {
      * @throws GitAPIException Excepción que se lanza cuando hay algún problema con la API de Github.
      */
 
-    public static void main(String[] args) throws IOException, GitAPIException {
+    public static void main(String[] args) throws IOException, GitAPIException, URISyntaxException {
         int opcion;
         
         /**
@@ -112,13 +117,44 @@ public class JGitAPI {
                  */    
                 
                 case 4:
+                    
                     String rutaInicializar = JOptionPane.showInputDialog("Ruta del proyecto");
                     InitCommand repositorio2 = new InitCommand();
                     repositorio2.setDirectory(new File(rutaInicializar)).call();
                     
                     break;
                     
+                /**
+                 * Opción que nos permite subir el proyecto a Github.
+                 * Le pasamos la ruta del proyecto, la ruta del repositorio en Github y el usuario y contraseña.
+                 */    
                     
+                    
+                case 5:
+                    
+                    String ruta2 = JOptionPane.showInputDialog("Ruta del proyecto");
+                    String repositorioGit = JOptionPane.showInputDialog("Url del proyecto en github");
+                    String usuario = JOptionPane.showInputDialog("Nombre de usuario");
+                    String contrasena = JOptionPane.showInputDialog("Contraseña");
+
+                    FileRepositoryBuilder constructorRepositorio = new FileRepositoryBuilder();
+                    Repository repositorio3 = constructorRepositorio.setGitDir(new File(repositorioGit))
+                            .readEnvironment() 
+                            .findGitDir() 
+                            .setMustExist(true)
+                            .build();
+
+                    Git gitPush = new Git(repositorio3);
+
+                    RemoteAddCommand remoteAddCommand = gitPush.remoteAdd();
+                    remoteAddCommand.setName("origin");
+                    remoteAddCommand.setUri(new URIish(repositorioGit));
+                    remoteAddCommand.call();
+                    PushCommand pushCommand = gitPush.push();
+                    pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(usuario, contrasena));
+                    pushCommand.call();    
+                    
+                    break;
             }
             
         }while(opcion!=0);

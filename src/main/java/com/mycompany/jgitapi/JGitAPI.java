@@ -1,8 +1,13 @@
 
 package com.mycompany.jgitapi;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.kohsuke.github.GHCreateRepositoryBuilder;
 import org.kohsuke.github.GitHub;
 
@@ -38,6 +43,28 @@ public class JGitAPI {
                         System.out.println(ex.getMessage());
                     }
                     break;
+                    
+                /**
+                 * Opción para clonar un repositorio.
+                 * Añadimos las dependencias de la librería JGit.
+                 * Usamos el método cloneRepository() para clonar el repositorio.
+                 * Le decimos la ruta del repositorio que queremos clonar.
+                 * Y en que ruta queremos crear el proyecto
+                 */    
+                    
+                case 2:
+            
+                try {
+                    Git.cloneRepository()
+                            .setURI("https://github.com/AlejandroSotoDominguez/MaquinaDeCafe.git")
+                            .setDirectory(new File("/home/local/DANIELCASTELAO/asotodominguez/proyectoAPIGithub"))
+                            .call();
+                } catch (GitAPIException ex) {
+                    Logger.getLogger(JGitAPI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            
+                    break;
+                    
             }
             
         }while(opcion!=0);

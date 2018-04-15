@@ -6,14 +6,18 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import org.eclipse.jgit.api.AddCommand;
+import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.kohsuke.github.GHCreateRepositoryBuilder;
 import org.kohsuke.github.GitHub;
 
 public class JGitAPI {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, GitAPIException {
         int opcion;
         
         /**
@@ -21,10 +25,11 @@ public class JGitAPI {
          */
         
         do{
-            opcion = Integer.parseInt(JOptionPane.showInputDialog("1. Crear repositorio"
-                    + "2. Clonar repositorio"
-                    + "3. Hacer commit"
-                    + "4. Inicializar repositorio"
+            opcion = Integer.parseInt(JOptionPane.showInputDialog(""
+                    + "1. Crear repositorio\n"
+                    + "2. Clonar repositorio\n"
+                    + "3. Hacer commit\n"
+                    + "4. Inicializar repositorio\n"
                     + "5. Push"));
             switch(opcion){
                 /**
@@ -34,10 +39,12 @@ public class JGitAPI {
                 */
                       
                 case 1:
+                    String repositorio = JOptionPane.showInputDialog("Nombre del repositorio");
+                    
                     try{
                         GitHub github = GitHub.connect();
                         GHCreateRepositoryBuilder builder;
-                        builder=github.createRepository("repositorioMaven");
+                        builder=github.createRepository(repositorio);
                         builder.create();
                     }catch(IOException ex){
                         System.out.println(ex.getMessage());
@@ -53,18 +60,46 @@ public class JGitAPI {
                  */    
                     
                 case 2:
-            
-                try {
-                    Git.cloneRepository()
-                            .setURI("https://github.com/AlejandroSotoDominguez/MaquinaDeCafe.git")
-                            .setDirectory(new File("/home/local/DANIELCASTELAO/asotodominguez/proyectoAPIGithub"))
-                            .call();
-                } catch (GitAPIException ex) {
-                    Logger.getLogger(JGitAPI.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                    
+                    String url = JOptionPane.showInputDialog("Escribe la url del proyecto que quieres clonar");
+                    String nombre = JOptionPane.showInputDialog("Escribe el nombre para la carpeta del proyecto");
+                    
+                    try {
+                        Git.cloneRepository()
+                                .setURI(url)
+                                .setDirectory(new File("/home/local/DANIELCASTELAO/asotodominguez/NetBeansProjects/"+nombre))
+                                .call();
+                    } catch (GitAPIException ex) {
+                        Logger.getLogger(JGitAPI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
             
                     break;
                     
+                /**
+                 * Esta opción hace un commit de nuestro proyecto.
+                 * La variable mensaje nos pedirá que escribamos por pantalla la descripción del commit.
+                 * Definimos la ruta del repositorio.
+                 */        
+                    
+                case 3:
+                    
+                    String mensaje = JOptionPane.showInputDialog("Descripción del commit");
+                    String ruta = JOptionPane.showInputDialog("Escribe la ruta del proyecto");
+
+                    FileRepositoryBuilder repositoryBuilder=new FileRepositoryBuilder();
+                    Repository repository=repositoryBuilder.setGitDir(new File(ruta))
+                            .readEnvironment()
+                            .findGitDir()
+                            .setMustExist(true)
+                            .build();
+
+                    Git git=new Git(repository);
+                    AddCommand add=git.add();
+                    add.addFilepattern(ruta).call();
+                    CommitCommand commit=git.commit();
+                    commit.setMessage(mensaje).call(); 
+                    
+                    break;
             }
             
         }while(opcion!=0);
